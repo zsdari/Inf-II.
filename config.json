@@ -1,0 +1,27 @@
+{
+  "filter": {
+    "type": "AndFilter",
+    "args": {
+      "filters": [
+        {
+          "type": "LengthFilter",
+          "args": {
+            "min": 8,
+            "max": 12
+          }
+        },
+        {
+          "type": "SpecialCharFilter",
+          "args": {
+            "special_chars": [
+              ".",
+              ",",
+              "*"
+            ],
+            "min": 3
+          }
+        }
+      ]
+    }
+  }
+}
