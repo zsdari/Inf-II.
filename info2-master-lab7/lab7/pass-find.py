@@ -1,4 +1,5 @@
 import argparse
+import getpass
 
 from password_check import PasswordInWordsDirFilter
 
@@ -13,7 +14,7 @@ if __name__ == "__main__":
 
     checker = PasswordInWordsDirFilter(args.directory)
     print("Pass:", end="")
-    password = getpass.getuser("Pass:")
+    password = getpass.getuser()
     errors = checker.validate(password)
     if len(errors) > 0:
         print("Password not safe")

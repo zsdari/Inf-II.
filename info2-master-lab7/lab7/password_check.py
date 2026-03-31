@@ -6,7 +6,7 @@ import logging
 import datetime
 import bcrypt
 from typing import Protocol
-
+from pathlib import Path
 
 class FilterProtocol(Protocol):
     def validate(self,password: str) -> list:
@@ -116,7 +116,28 @@ class PasswordInWordsDirFilter(FilterProtocol):
         self.directory = directory
 
     def validate(self,password: str) -> list:
-        raise NotImplemented
+        errors = []
+        path = Path(self.directory).expanduser()
+        for file_path in path.rglob("*"):
+            if file_path.is_file():
+                result = self.handle_file(file_path)
+                if result is not None:
+                    errors.append(result)
+                    break
+        return errors
+
+    def handle(self, file_path, password):
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line in f.readlines():
+                token = line.strip().split(" ")
+                _pass = None
+                if len(token) == 1:
+                    _pass = token[0]
+                elif len(token) >= 2:
+                    _pass = token[1]
+                if _pass is not None and password == _pass:
+                    return f"Password found in wordlist({file_path})!"
+            return None
 
 class FilterFactory:
     @staticmethod
