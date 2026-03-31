@@ -132,8 +132,12 @@ class PasswordInWordsDirFilter(FilterProtocol):
     def handle(self, file_path, password):
         try:
             encoding = chardet.detect(file_path)
-            with open(file_path, "r", encoding="utf-8") as f:
-                for line in f.readlines():
+            with open(file_path, "rb") as f:
+                for line_num, binary_line in enumerate(f, 1):
+                    detection = chardet.detect(binary_line)
+                    if 
+                        encoding = "utf-8"
+
                     token = line.strip().split(" ")
                     _pass = None
                     if len(token) == 1:
