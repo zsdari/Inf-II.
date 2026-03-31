@@ -1,0 +1,123 @@
+@startuml
+!theme vibrant
+skinparam backgroundColor #FEF9E6
+skinparam class {
+    BackgroundColor #FFF2CC
+    BorderColor #D6A02C
+    ArrowColor #2C6E9E
+    FontColor #2C3E50
+    FontName Arial
+    FontSize 12
+}
+skinparam interface {
+    BackgroundColor #E1F5FE
+    BorderColor #0288D1
+    FontColor #01579B
+}
+skinparam abstract {
+    BackgroundColor #FFE0B2
+    BorderColor #F57C00
+    FontColor #E65100
+}
+skinparam note {
+    BackgroundColor #FFF9C4
+    BorderColor #FBC02D
+    FontColor #F57F17
+}
+skinparam stereotype {
+    BackgroundColor #D1C4E9
+    BorderColor #512DA8
+    FontColor #311B92
+}
+
+title <size:18><color:#2E7D32>Password Checker - Class Diagram</color></size>
+
+interface FilterProtocol {
+    + validate(password: str): list
+}
+
+abstract class MinFilterBase {
+    # min: int
+    + __init__(min: int = 1)
+    + {abstract} validate(password: str): list
+}
+
+abstract class CharMethodFilter {
+    - method_name: str
+    + __init__(min: int, method_name: str)
+    + validate(password: str): list
+}
+
+class UpperCharFilter {
+    + __init__(min: int = 1)
+}
+
+class LowerCharFilter {
+    + __init__(min: int = 1)
+}
+
+class NumericCharFilter {
+    + __init__(min: int = 1)
+}
+
+class LengthFilter {
+    - max: int
+    + __init__(min: int = 4, max: int = None)
+    + validate(password: str): list
+}
+
+class SpecialCharFilter {
+    - special_chars: list
+    + __init__(special_chars: list = ['.', ',', '*'], min: int = 1)
+    + validate(password: str): list
+}
+
+class AndFilter {
+    - filters: list
+    + __init__(filters: list)
+    + validate(password: str): list
+}
+
+class FilterFactory {
+    + {static} from_dict(data: dict): FilterProtocol
+}
+
+class Config {
+    - {static} _instance: Config
+    + {static} get_instance(filter: FilterProtocol = None): Config
+    - __init__(filter: FilterProtocol)
+}
+
+class ConfigLoader {
+    + {static} load_from_file_byname(file_name: str): Config
+}
+
+class JsonFormatter {
+    + format(record): str
+}
+
+' Relationships
+FilterProtocol <|.. MinFilterBase : <color:#6A1B9A><<realize>></color>
+MinFilterBase <|-- CharMethodFilter : <color:#D84315>extend</color>
+MinFilterBase <|-- LengthFilter : <color:#D84315>extend</color>
+MinFilterBase <|-- SpecialCharFilter : <color:#D84315>extend</color>
+CharMethodFilter <|-- UpperCharFilter : <color:#D84315>extend</color>
+CharMethodFilter <|-- LowerCharFilter : <color:#D84315>extend</color>
+CharMethodFilter <|-- NumericCharFilter : <color:#D84315>extend</color>
+FilterProtocol <|.. AndFilter : <color:#6A1B9A><<realize>></color>
+
+AndFilter *-- FilterProtocol : <color:#2E7D32>contains</color>
+Config *-- FilterProtocol : <color:#2E7D32>holds</color>
+
+ConfigLoader ..> Config : <color:#0D47A1>creates</color>
+ConfigLoader ..> FilterFactory : <color:#0D47A1>uses</color>
+FilterFactory ..> AndFilter : <color:#0D47A1>instantiates</color>
+FilterFactory ..> CharMethodFilter : <color:#0D47A1>instantiates</color>
+FilterFactory ..> LengthFilter : <color:#0D47A1>instantiates</color>
+FilterFactory ..> SpecialCharFilter : <color:#0D47A1>instantiates</color>
+
+JsonFormatter --|> logging.Formatter : <color:#AD1457>inherits</color>
+
+note top of Config : <color:#B71C1C><b>Singleton pattern</b></color>\nInitialization requires filter
+
+@enduml
